@@ -11,7 +11,7 @@ import (
 )
 
 type BlockProvider interface {
-	GetLatestBlock() (string, error)
+	getLatestBlock() (string, error)
 }
 
 type ProviderStatus uint64
@@ -62,7 +62,7 @@ func (b *RpcBlockProvider) fetchBlocks(ctx context.Context, wg *sync.WaitGroup, 
 		logger.WithField("provider", b.Name).Debug("Got block")
 		if err != nil {
 			b.Status = ProviderOffline
-			logger.WithField("provider", b.Name).Error("Error fetching block: ", err)
+			logger.WithField("provider", b.Name).Debug("Error fetching block: ", err)
 		} else {
 			b.Status = ProviderOnline
 			blocks <- block
@@ -74,7 +74,7 @@ func (b *RpcBlockProvider) fetchBlocks(ctx context.Context, wg *sync.WaitGroup, 
 	go func() {
 		defer wg.Done()
 
-		logger.WithField("provider", b.Name).Info("Starting block fetcher")
+		logger.WithField("provider", b.Name).Debug("Starting block fetcher")
 
 		ticker := time.NewTicker(time.Duration(b.PollIntervalSecs * float64(time.Second)))
 
@@ -84,7 +84,7 @@ func (b *RpcBlockProvider) fetchBlocks(ctx context.Context, wg *sync.WaitGroup, 
 
 			select {
 			case <-ctx.Done():
-				logger.WithField("provider", b.Name).Info("Stopping block stream...")
+				logger.WithField("provider", b.Name).Debug("Stopping block stream...")
 				break loop
 			case <-ticker.C:
 				// Can't seem to get the coverage to work for this case

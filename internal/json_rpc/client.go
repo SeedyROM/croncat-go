@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type Client struct {
@@ -21,7 +22,10 @@ func (c *Client) Call(method string, params interface{}, id int) (*Response, err
 	}
 
 	// Send the request
-	resp, err := http.Post(c.Url, "application/json", bytes.NewBuffer(str))
+	client := &http.Client{
+		Timeout: 1 * time.Second,
+	}
+	resp, err := client.Post(c.Url, "application/json", bytes.NewBuffer(str))
 	if err != nil {
 		return nil, err
 	}
