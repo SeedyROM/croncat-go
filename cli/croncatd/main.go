@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/CronCats/croncat-go/pkg/app"
+	"github.com/CronCats/croncat-go/internal/app"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -11,7 +11,13 @@ import (
 var Logger *logrus.Entry
 
 func initConfig() {
-	logrus.SetLevel(logrus.InfoLevel)
+	// Set level from env var
+	level, err := logrus.ParseLevel(os.Getenv("LOG_LEVEL"))
+	if err != nil {
+		level = logrus.InfoLevel
+	}
+	logrus.SetLevel(level)
+
 	logrus.SetFormatter(&logrus.TextFormatter{TimestampFormat: "2006-01-02 15:04:05", FullTimestamp: true})
 }
 
