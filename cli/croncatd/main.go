@@ -64,8 +64,10 @@ var goCommand = &cobra.Command{
 	Use:   "go",
 	Short: "Run croncat tasks",
 	Run: func(cmd *cobra.Command, args []string) {
-		App := &app.App{Logger: Logger}
-		App.Run()
+		chainId := cmd.Flag("chain-id").Value.String()
+
+		app := app.NewApp(chainId, Logger)
+		app.Run()
 	},
 }
 
@@ -73,8 +75,10 @@ var registerCommand = &cobra.Command{
 	Use:   "register",
 	Short: "Register a croncat agent",
 	Run: func(cmd *cobra.Command, args []string) {
-		App := &app.App{Logger: Logger}
-		App.Register()
+		chainId := cmd.Flag("chain-id").Value.String()
+
+		app := app.NewApp(chainId, Logger)
+		app.Register()
 	},
 }
 
@@ -82,7 +86,9 @@ var unregisterCommand = &cobra.Command{
 	Use:   "unregister",
 	Short: "Unregister a croncat agent",
 	Run: func(cmd *cobra.Command, args []string) {
-		App := &app.App{Logger: Logger}
-		App.Unregister()
+		chainId := cmd.Flag("chain-id").Value.String()
+
+		app := app.NewApp(chainId, Logger)
+		app.Unregister()
 	},
 }

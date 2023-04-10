@@ -8,11 +8,30 @@ import (
 	"sync"
 
 	"github.com/CronCats/croncat-go/internal/block_stream"
+	"github.com/CronCats/croncat-go/internal/chains"
 	"github.com/sirupsen/logrus"
 )
 
 type App struct {
-	Logger *logrus.Entry
+	Logger    *logrus.Entry
+	ChainInfo *chains.ChainInfo
+}
+
+func NewApp(chainId string, logger *logrus.Entry) *App {
+	chainRegistry, err := chains.NewChainRegistry()
+	if err != nil {
+		logger.Fatal("Failed to load chain-registry: ", err)
+	}
+
+	chainInfo, err := chainRegistry.GetChainInfo(chainId)
+	if err != nil {
+		logger.Fatal("Failed to get chain info: ", err)
+	}
+
+	return &App{
+		Logger:    logger,
+		ChainInfo: chainInfo,
+	}
 }
 
 func (a *App) Register() {
@@ -32,11 +51,11 @@ func (a *App) Run() {
 	// Ctrl+C handler
 	go a.ctrlCHandler(cancel)
 
-	// Create the block stream
+	// Create the block stream from the chain info
 	stream := block_stream.NewBlockStream(ctx, a.Logger)
-	stream.AddProvider("Juno", "https://rpc.uni.junonetwork.io", 3)
-	stream.AddProvider("Polkachu", "https://juno-testnet-rpc.polkachu.com", 3)
-	stream.AddProvider("Reecepbcups", "https://uni-rpc.reece.sh", 3)
+	for _, provider := range a.ChainInfo.Apis.Rpc {
+		stream.AddProvider(provider.Provider, provider.Address, 3)
+	}
 
 	// De-duplicate the blocks
 	deduper := block_stream.NewBlockDeDuper(ctx, stream.Output())
@@ -50,7 +69,7 @@ func (a *App) Run() {
 	// Wait for the block stream to finish
 	wg.Add(1)
 	go func() {
-		// Consume the blocks
+		// Consume the blocks while the stream is running
 		for {
 			select {
 			case <-stream.Done():
@@ -64,7 +83,6 @@ func (a *App) Run() {
 	}()
 	// Wait for the application to finish
 	wg.Wait()
-
 }
 
 func (a *App) ctrlCHandler(cancel context.CancelFunc) {
