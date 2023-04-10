@@ -11,6 +11,13 @@ import (
 
 var Logger *logrus.Entry
 
+const Logo = "                                         _  \n" +
+	"           ___ _ __ ___  _ __   ___ __ _| |_ \n" +
+	"  /\\_/\\   / __| '__/ _ \\| '_ \\ / __/ _` | __/ \n" +
+	" ( o.o ) | (__| | | (_) | | | | (_| (_| | |_ \n" +
+	"  > ^ <   \\___|_|  \\___/|_| |_|\\___\\__,_|\\__\\ \n" +
+	"===============================================\n\n"
+
 func initConfig() {
 	// Set level from env var
 	level, err := logrus.ParseLevel(os.Getenv("LOG_LEVEL"))
@@ -40,7 +47,7 @@ func init() {
 	rootCmd.MarkPersistentFlagRequired("chain-id")
 
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "debug mode")
-	rootCmd.PersistentFlags().BoolP("no-frills", "", true, "wether to display cute things")
+	rootCmd.PersistentFlags().BoolP("no-frills", "", false, "wether to display cute things")
 
 	rootCmd.AddCommand(goCommand)
 	rootCmd.AddCommand(registerCommand)
@@ -56,18 +63,9 @@ func main() {
 func preRun(cmd *cobra.Command, args []string) {
 	Logger = initContextLogger(cmd)
 
-	printLogo()
-}
-
-func printLogo() {
-	logo := "                                         _  \n" +
-		"           ___ _ __ ___  _ __   ___ __ _| |_ \n" +
-		"  /\\_/\\   / __| '__/ _ \\| '_ \\ / __/ _` | __/ \n" +
-		" ( o.o ) | (__| | | (_) | | | | (_| (_| | |_ \n" +
-		"  > ^ <   \\___|_|  \\___/|_| |_|\\___\\__,_|\\__\\ \n" +
-		"===============================================\n"
-
-	fmt.Println(logo)
+	if cmd.Flag("no-frills").Value.String() != "true" {
+		fmt.Print(Logo)
+	}
 }
 
 var rootCmd = &cobra.Command{
