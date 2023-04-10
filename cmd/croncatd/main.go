@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/CronCats/croncat-go/internal/app"
@@ -38,6 +39,9 @@ func init() {
 	rootCmd.PersistentFlags().StringP("chain-id", "i", "", "chain id")
 	rootCmd.MarkPersistentFlagRequired("chain-id")
 
+	rootCmd.PersistentFlags().BoolP("debug", "d", false, "debug mode")
+	rootCmd.PersistentFlags().BoolP("no-frills", "", true, "wether to display cute things")
+
 	rootCmd.AddCommand(goCommand)
 	rootCmd.AddCommand(registerCommand)
 	rootCmd.AddCommand(unregisterCommand)
@@ -49,12 +53,27 @@ func main() {
 	}
 }
 
+func preRun(cmd *cobra.Command, args []string) {
+	Logger = initContextLogger(cmd)
+
+	printLogo()
+}
+
+func printLogo() {
+	logo := "                                         _  \n" +
+		"           ___ _ __ ___  _ __   ___ __ _| |_ \n" +
+		"  /\\_/\\   / __| '__/ _ \\| '_ \\ / __/ _` | __/ \n" +
+		" ( o.o ) | (__| | | (_) | | | | (_| (_| | |_ \n" +
+		"  > ^ <   \\___|_|  \\___/|_| |_|\\___\\__,_|\\__\\ \n" +
+		"===============================================\n"
+
+	fmt.Println(logo)
+}
+
 var rootCmd = &cobra.Command{
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		Logger = initContextLogger(cmd)
-	},
-	Use:   "croncatd",
-	Short: "croncatd is a daemon that runs croncat tasks",
+	PersistentPreRun: preRun,
+	Use:              "croncatd",
+	Short:            "croncatd is a daemon that runs croncat tasks",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

@@ -1,3 +1,4 @@
 coverage.*
 vendor/
 .chain-registry
+bin/
