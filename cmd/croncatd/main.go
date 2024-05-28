@@ -26,7 +26,7 @@ func initConfig() {
 	}
 	logrus.SetLevel(level)
 
-	logrus.SetFormatter(&logrus.TextFormatter{TimestampFormat: "2006-01-02 15:04:05", FullTimestamp: true})
+	logrus.SetFormatter(&logrus.TextFormatter{TimestampFormat: "2006-01-02 15:04:05", FullTimestamp: true, DisableLevelTruncation: true})
 }
 
 func initContextLogger(cmd *cobra.Command) *logrus.Entry {
